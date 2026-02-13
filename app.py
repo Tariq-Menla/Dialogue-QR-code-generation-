@@ -14,7 +14,7 @@ app = Flask(__name__)
     
 # cursor.execute("SELECT qr_code FROM qr_codes WHERE is_used = 0")
 
-print("All tokens reset to fresh. Try scanning now!")
+
 def create_url_pngs():
     connection = sqlite3.connect('./instance/qr.db')
     cursor = connection.cursor()
@@ -22,7 +22,7 @@ def create_url_pngs():
     tokens = cursor.fetchall()
     for row in tokens:
         token = row[0]
-        url = f'http://192.168.2.25:5000/form/{token}'
+        url = f'http://ipv4:5000/form/{token}'
         #c reate url img
         img = qrcode.make(url)
         img.save(f"qr_{token}.png")
@@ -34,7 +34,7 @@ def create_url_png():
     cursor = connection.cursor()
     cursor.execute("SELECT qr_code FROM qr_codes LIMIT 1")
     token = cursor.fetchone()[0]
-    url = f'http://192.168.2.25:5000/form/{token}'
+    url = f'http://ipv4:5000/form/{token}'
     #create url img
     img = qrcode.make(url)
     img.save(f"qr_{token}.png")
@@ -46,7 +46,7 @@ def create_url_png():
 def generate_link():
     connection = sqlite3.connect('./instance/qr.db')
     cursor = connection.cursor()
-    host_ip = "192.168.2.25"
+    host_ip = "ipv4"
     for i in range(100):
         token = str(uuid.uuid4())
         basic_url = f"http://{host_ip}:5000/onboard/{token}"
@@ -59,7 +59,7 @@ def generate_link():
 # connection.commit()
 
 
-# host_ip = "192.168.2.27"
+
 # base_url = f"http://{host_ip}:5000/onboard/{token}"
 # img = qrcode.make(base_url)
 # type(img)  # qrcode.image.pil.PilImage
@@ -99,7 +99,7 @@ def submission():
     return render_template('success.html')
 
      
-# base_url= http://192.168.2.27:5000/form
+# base_url= http://192.168.12.99:5000/form
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
