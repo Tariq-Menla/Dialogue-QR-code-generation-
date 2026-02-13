@@ -25,13 +25,15 @@ def create_url_pngs():
 
 
 def create_url_png():
-    token = cursor.fetchone()
-    qr_token = token[0]
-    url = f'http://127.0.0.1:5000/form/{qr_token}'
+    cursor.execute("SELECT qr_code FROM qr_codes LIMIT 1")
+    token = cursor.fetchone()[0]
+    url = f'http://192.168.2.27:5000/form/{token}'
     #create url img
     img = qrcode.make(url)
     img.save(f"qr_{token}.png")
     connection.close()
+
+create_url_png()
 
 # THE FUNCTION GENERATE LINKS IN ORDER TO USE FOR 
 def generate_link():
@@ -56,27 +58,12 @@ def generate_link():
 
 @app.route('/form/<token>', methods=['GET', 'POST'])
 def Home(token):
-    # 1. Connect to the DB
-    conn = sqlite3.connect('hackathon.db')
-    cursor = conn.cursor()
 
-    # 2. Get the data (using your current logic of fetching any unused code)
-    cursor.execute("SELECT qr_code FROM qr_codes WHERE is_used = 0 LIMIT 1")
-    row = cursor.fetchone()
-    
-    # Close connection immediately to avoid "Database is locked" errors
-    conn.close()
+    return render_template("index.html", token=token)
 
-    # 3. Handle the case where no codes are left
-    qr_data = row[0] if row else "No codes available"
-    url = f'http://127.0.0.1:5000/form/{qr_data}'
-    #c reate url img
-    img = qrcode.make(url)
-    img.save(f"qr_{token}.png")
-    # 4. Pass 'qr_data' to your HTML
-    return render_template("index.html", qr_code=qr_data, token=token)
-
-
+@app.route('/submission')
+def submission():
+    return render_template('success.html')
 
     
     # if result is None:
