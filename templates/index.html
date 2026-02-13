@@ -23,7 +23,7 @@
         <h1>Dialogue</h1>
     </header>
     <main>
-        <form action="" method="get">
+        <form action="{{url_for('submission') }}" method="POST">
           <!-- Add form elements here! -->
            <fieldset>
             <p>Enter your info here to be added to the group!</p>
@@ -43,10 +43,11 @@
               <label for="birthday">Date of Birth:</label>
 					    <input type="date" id="birthday" name="birthday" value="" max="" min="" placeholder="" required/>
             </p>
-            
+            <input type="hidden" name="token" value="{{ token }}">
            </fieldset>
+           <button type="submit">Submit</button>
         </form>
-        <button type="submit">Submit</button>
+        
         
     </main>
   </body>

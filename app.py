@@ -1,23 +1,28 @@
 import sqlite3 # Database
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import qrcode
 import uuid # Needed to generate tokens
 import io # handle image data
 
 app = Flask(__name__)
-connection = sqlite3.connect('./instance/qr.db')
-cursor = connection.cursor()
+# connection = sqlite3.connect('./instance/qr.db')
+# cursor = connection.cursor()
 
 
 # This code forms the 100 qr_codes with links that "work"
 # db_connection = sqlite3.connect('./instance/qr.db')
     
 # cursor.execute("SELECT qr_code FROM qr_codes WHERE is_used = 0")
+
+print("All tokens reset to fresh. Try scanning now!")
 def create_url_pngs():
+    connection = sqlite3.connect('./instance/qr.db')
+    cursor = connection.cursor()
+    cursor.execute("SELECT qr_code FROM qr_codes")
     tokens = cursor.fetchall()
     for row in tokens:
         token = row[0]
-        url = f'http://127.0.0.1:5000/form/{token}'
+        url = f'http://192.168.2.25:5000/form/{token}'
         #c reate url img
         img = qrcode.make(url)
         img.save(f"qr_{token}.png")
@@ -25,19 +30,23 @@ def create_url_pngs():
 
 
 def create_url_png():
+    connection = sqlite3.connect('./instance/qr.db')
+    cursor = connection.cursor()
     cursor.execute("SELECT qr_code FROM qr_codes LIMIT 1")
     token = cursor.fetchone()[0]
-    url = f'http://192.168.2.27:5000/form/{token}'
+    url = f'http://192.168.2.25:5000/form/{token}'
     #create url img
     img = qrcode.make(url)
     img.save(f"qr_{token}.png")
     connection.close()
 
-create_url_png()
+# create_url_pngs()
 
 # THE FUNCTION GENERATE LINKS IN ORDER TO USE FOR 
 def generate_link():
-    host_ip = "192.168.2.27"
+    connection = sqlite3.connect('./instance/qr.db')
+    cursor = connection.cursor()
+    host_ip = "192.168.2.25"
     for i in range(100):
         token = str(uuid.uuid4())
         basic_url = f"http://{host_ip}:5000/onboard/{token}"
@@ -58,25 +67,39 @@ def generate_link():
 
 @app.route('/form/<token>', methods=['GET', 'POST'])
 def Home(token):
-
-    return render_template("index.html", token=token)
-
-@app.route('/submission')
+    connection = sqlite3.connect('./instance/qr.db')
+    cursor = connection.cursor()
+    
+    # check if the token exists and check its status
+    cursor.execute("SELECT is_used FROM qr_codes WHERE qr_code = ?", (token,))
+    row = cursor.fetchone()
+    if row is None or row[0] == 1:
+        connection.close()
+        return render_template("failure.html")
+    if row[0] == 0:
+        connection.close()
+        return render_template("index.html", token=token)
+    if request.method == 'POST':
+        # ONLY burn the token now that they've finished
+        return redirect('/submission')
+    connection.close()
+    return render_template("failure.html")
+@app.route('/submission', methods=['POST'])
 def submission():
+#     cursor.execute("UPDATE qr_codes SET is_used = 1 WHERE qr_code = ?", (token,))
+#     connection.commit()
+    token = request.form.get('token') # Get the token from the hidden field
+    
+    connection = sqlite3.connect('./instance/qr.db')
+    cursor = connection.cursor()
+    
+    if token:
+        cursor.execute("UPDATE qr_codes SET is_used = 1 WHERE qr_code = ?", (token,))
+        connection.commit()
     return render_template('success.html')
 
-    
-    # if result is None:
-    #     # Scenario A: The token doesn't exist at all
-    #     return "<h1>Invalid Code</h1>" 
-    
-    # elif result[0]: 
-    #     # Scenario B: The token exists, but is_used is True (1)
-    #     # (result[0] accesses the first column, which is 'is_used')
-    #     return render_template("invalid.html")
-        
-    # else:
-    #     # Scenario C: Token exists and is_used is False (0)
-    #     return render_template("index.html")
-    
+     
 # base_url= http://192.168.2.27:5000/form
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
