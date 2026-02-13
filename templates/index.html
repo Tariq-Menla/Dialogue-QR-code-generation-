@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Dialogue form</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="calculate.js" defer></script>
+    <link rel="stylesheet" href="https://unpkg.com/bamboo.css">
+    <!-- Apply the external CSS here -->
+
+    <style>
+        .radio-list { list-style-type: none; padding: 0; }
+        form li {
+			display: flex;
+			gap: 0.5em
+		}
+		input:invalid:focus {background-color: red;
+		}
+    </style>
+  </head>
+  <body>
+    <header>
+        <h1>Dialogue</h1>
+    </header>
+    <main>
+        <form action="" method="get">
+          <!-- Add form elements here! -->
+           <fieldset>
+            <p>Enter your info here to be added to the group!</p>
+            <p>
+				<label for="fname">First name:</label>
+				<input type="text" id="fname" name="fname" value="" placeholder="James" required/>
+			</p>
+            <p>
+				<label for="fname">Last name:</label>
+				<input type="text" id="lname" name="lname" value="" placeholder="Robinson" required/>
+			</p>
+            <p>
+              <label for="email">Email:</label>
+					    <input type="email" id="email" name="email" value="" max="" min="" placeholder="example@gmail.com" required/>
+            </p>
+            <p>
+              <label for="birthday">Date of Birth:</label>
+					    <input type="date" id="birthday" name="birthday" value="" max="" min="" placeholder="" required/>
+            </p>
+            
+           </fieldset>
+        </form>
+        <button type="submit">Submit</button>
+        
+    </main>
+  </body>
+</html>
+
