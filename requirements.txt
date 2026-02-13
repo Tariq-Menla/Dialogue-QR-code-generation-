@@ -1,1 +1,4 @@
+pip install flask
 pip install flask qrcode[pil]
+pip install qrcode
+pip install qrcode[pil]
