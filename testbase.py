@@ -7,7 +7,7 @@ import uuid # Needed to generate tokens
 
 
 
-host_ip = "192.168.2.27"
+host_ip = "ipv4"
 base_url = f"http://{host_ip}:5000/onboard/{token}"
 img = qrcode.make(base_url)
 # type(img)  # qrcode.image.pil.PilImage
